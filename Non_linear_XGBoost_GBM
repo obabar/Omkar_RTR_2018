@@ -1,0 +1,1412 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled5.ipynb",
+      "version": "0.3.2",
+      "provenance": [],
+      "collapsed_sections": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/obabar/Omkar_RTR_2018/blob/AI_ML_DS/Non_linear_XGBoost_GBM\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "metadata": {
+        "id": "3LxziMutqVra",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "F2FwSrj2v1T8",
+        "colab_type": "code",
+        "outputId": "cb1ff124-7ecc-489f-b5c1-f57279a840c3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 629
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "import numpy as np                                                 # Implemennts milti-dimensional array and matrices\n",
+        "import pandas as pd                                                # For data manipulation and analysis\n",
+        "import pandas_profiling\n",
+        "import matplotlib.pyplot as plt                                    # Plotting library for Python programming language and it's numerical mathematics extension NumPy\n",
+        "import seaborn as sns                                              # Provides a high level interface for drawing attractive and informative statistical graphics\n",
+        "%matplotlib inline\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "sns.set()"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "/usr/local/lib/python2.7/dist-packages/pandas_profiling/plot.py:15: UserWarning: \n",
+            "This call to matplotlib.use() has no effect because the backend has already\n",
+            "been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,\n",
+            "or matplotlib.backends is imported for the first time.\n",
+            "\n",
+            "The backend was *originally* set to 'module://ipykernel.pylab.backend_inline' by the following code:\n",
+            "  File \"/usr/lib/python2.7/runpy.py\", line 174, in _run_module_as_main\n",
+            "    \"__main__\", fname, loader, pkg_name)\n",
+            "  File \"/usr/lib/python2.7/runpy.py\", line 72, in _run_code\n",
+            "    exec code in run_globals\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/ipykernel_launcher.py\", line 16, in <module>\n",
+            "    app.launch_new_instance()\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/traitlets/config/application.py\", line 657, in launch_instance\n",
+            "    app.initialize(argv)\n",
+            "  File \"</usr/local/lib/python2.7/dist-packages/decorator.pyc:decorator-gen-121>\", line 2, in initialize\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/traitlets/config/application.py\", line 87, in catch_config_error\n",
+            "    return method(app, *args, **kwargs)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/ipykernel/kernelapp.py\", line 462, in initialize\n",
+            "    self.init_gui_pylab()\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/ipykernel/kernelapp.py\", line 403, in init_gui_pylab\n",
+            "    InteractiveShellApp.init_gui_pylab(self)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/IPython/core/shellapp.py\", line 213, in init_gui_pylab\n",
+            "    r = enable(key)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/IPython/core/interactiveshell.py\", line 2950, in enable_matplotlib\n",
+            "    pt.activate_matplotlib(backend)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/IPython/core/pylabtools.py\", line 309, in activate_matplotlib\n",
+            "    matplotlib.pyplot.switch_backend(backend)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/matplotlib/pyplot.py\", line 231, in switch_backend\n",
+            "    matplotlib.use(newbackend, warn=False, force=True)\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/matplotlib/__init__.py\", line 1422, in use\n",
+            "    reload(sys.modules['matplotlib.backends'])\n",
+            "  File \"/usr/local/lib/python2.7/dist-packages/matplotlib/backends/__init__.py\", line 17, in <module>\n",
+            "    line for line in traceback.format_stack()\n",
+            "\n",
+            "\n",
+            "  matplotlib.use(BACKEND)\n"
+          ],
+          "name": "stderr"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "-W8kvPXI1feZ",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "data = pd.read_csv(\"https://raw.githubusercontent.com/equester/TataTelecomAI/master/Sample%20Data/data_P.csv\")"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "08b4efF-1j5P",
+        "colab_type": "code",
+        "outputId": "8dcfbecf-8f19-4135-99b1-10e264c5ce3e",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 326
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "data.head()"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Incoming Attempts</th>\n",
+              "      <th>Normal Term Seizures</th>\n",
+              "      <th>Answered Calls</th>\n",
+              "      <th>Normal Not Answer Calls</th>\n",
+              "      <th>Outgoing Seizures</th>\n",
+              "      <th>FEV Seizures</th>\n",
+              "      <th>Network Conversation Minutes</th>\n",
+              "      <th>NER</th>\n",
+              "      <th>ACD</th>\n",
+              "      <th>New Pricing Service</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>41</td>\n",
+              "      <td>41</td>\n",
+              "      <td>40</td>\n",
+              "      <td>1</td>\n",
+              "      <td>41</td>\n",
+              "      <td>0</td>\n",
+              "      <td>14.533333</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>0.363333</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>239</td>\n",
+              "      <td>49</td>\n",
+              "      <td>11</td>\n",
+              "      <td>38</td>\n",
+              "      <td>71</td>\n",
+              "      <td>14</td>\n",
+              "      <td>36.666667</td>\n",
+              "      <td>85.964912</td>\n",
+              "      <td>3.333333</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>8019</td>\n",
+              "      <td>459</td>\n",
+              "      <td>188</td>\n",
+              "      <td>271</td>\n",
+              "      <td>643</td>\n",
+              "      <td>103</td>\n",
+              "      <td>1435.066667</td>\n",
+              "      <td>85.000000</td>\n",
+              "      <td>7.633333</td>\n",
+              "      <td>Corporate</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>10</td>\n",
+              "      <td>8</td>\n",
+              "      <td>8</td>\n",
+              "      <td>0</td>\n",
+              "      <td>8</td>\n",
+              "      <td>0</td>\n",
+              "      <td>13.133333</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>1.641667</td>\n",
+              "      <td>Corporate</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>117</td>\n",
+              "      <td>96</td>\n",
+              "      <td>13</td>\n",
+              "      <td>83</td>\n",
+              "      <td>112</td>\n",
+              "      <td>4</td>\n",
+              "      <td>64.016667</td>\n",
+              "      <td>88.888889</td>\n",
+              "      <td>4.924359</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Incoming Attempts  Normal Term Seizures  Answered Calls  \\\n",
+              "0                 41                    41              40   \n",
+              "1                239                    49              11   \n",
+              "2               8019                   459             188   \n",
+              "3                 10                     8               8   \n",
+              "4                117                    96              13   \n",
+              "\n",
+              "   Normal Not Answer Calls  Outgoing Seizures  FEV Seizures  \\\n",
+              "0                        1                 41             0   \n",
+              "1                       38                 71            14   \n",
+              "2                      271                643           103   \n",
+              "3                        0                  8             0   \n",
+              "4                       83                112             4   \n",
+              "\n",
+              "   Network Conversation Minutes         NER       ACD New Pricing Service  \n",
+              "0                     14.533333  100.000000  0.363333         Call Center  \n",
+              "1                     36.666667   85.964912  3.333333         Call Center  \n",
+              "2                   1435.066667   85.000000  7.633333           Corporate  \n",
+              "3                     13.133333  100.000000  1.641667           Corporate  \n",
+              "4                     64.016667   88.888889  4.924359         Call Center  "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "CQuqxmtG1nJ5",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "X = data.loc[:,data.columns != 'New Pricing Service']\n",
+        "y = data['New Pricing Service']"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "0ItK3MMq1tH0",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import train_test_split\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "gNbaIMyO1w4S",
+        "colab_type": "code",
+        "outputId": "553a01e0-1043-4ce9-e917-6543f8930b8e",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.linear_model import LogisticRegression\n",
+        "logreg = LogisticRegression()\n",
+        "logreg.fit(X_train,y_train)\n",
+        "y_pred_test = logreg.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.7272727272727273)\n",
+            "    0   1\n",
+            "0  45   4\n",
+            "1  26  35\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "LO7a8drz2erC",
+        "colab_type": "code",
+        "outputId": "8892b6fe-7c02-4dcf-e4e6-14add62ab52f",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn import tree\n",
+        "dtree = tree.DecisionTreeClassifier(random_state = 0)\n",
+        "dtree.fit(X_train, y_train)\n",
+        "y_pred_test = dtree.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.7636363636363637)\n",
+            "    0   1\n",
+            "0  37  12\n",
+            "1  14  47\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "UVnYnGkw2tVH",
+        "colab_type": "code",
+        "outputId": "6516281d-aaf3-4b0a-8f31-89ea9167e65e",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from graphviz import Source\n",
+        "graph = Source( tree.export_graphviz(dtree, out_file=None,filled=True, \n",
+        "                                rounded=True,  \n",
+        "                                special_characters=True, feature_names=X.columns))\n",
+        "graph.format = 'png'\n",
+        "graph.render('dtree_render',view=True)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'dtree_render.png'"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 29
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "CVacBbon27-L",
+        "colab_type": "code",
+        "outputId": "2e4b52f6-a533-423b-b5ae-4b50c675b324",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 141
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.tree import DecisionTreeClassifier\n",
+        "from sklearn.model_selection import GridSearchCV\n",
+        "\n",
+        "decision_tree_classifier = DecisionTreeClassifier(random_state = 0)\n",
+        "\n",
+        "\n",
+        "tree_para = [{'criterion':['gini','entropy'],'max_depth': range(2,60),\n",
+        "                             'max_features': ['sqrt', 'log2', None] }]\n",
+        "                            \n",
+        "                            \n",
+        "\n",
+        "grid_search = GridSearchCV(decision_tree_classifier,tree_para, cv=10, refit='AUC')\n",
+        "grid_search.fit(X_train, y_train)\n",
+        "y_pred_test1 = grid_search.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test1))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)\n"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.7545454545454545)\n",
+            "    0   1\n",
+            "0  37  12\n",
+            "1  14  47\n"
+          ],
+          "name": "stdout"
+        },
+        {
+          "output_type": "stream",
+          "text": [
+            "/usr/local/lib/python2.7/dist-packages/sklearn/model_selection/_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.\n",
+            "  DeprecationWarning)\n"
+          ],
+          "name": "stderr"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "SrfZqeuD3dYR",
+        "colab_type": "code",
+        "outputId": "eb0b8c92-e6de-4f0b-f63d-ffe85d17686a",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "\n",
+        "rf = RandomForestClassifier()\n",
+        "\n",
+        "rf.fit(X_train, y_train)\n",
+        "\n",
+        "y_pred_test = rf.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.8727272727272727)\n",
+            "    0   1\n",
+            "0  43   6\n",
+            "1   8  53\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "nu1FAbYT3jqC",
+        "colab_type": "code",
+        "outputId": "1dcd699e-6e4e-4206-f1ee-b5a0b7d4684f",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "rf1 = RandomForestClassifier(random_state = 0,\n",
+        "                                n_estimators = 30,\n",
+        "                                min_samples_split = 5,\n",
+        "                                min_samples_leaf = 2)\n",
+        "\n",
+        "rf1.fit(X_train, y_train)\n",
+        "y_pred_test = rf1.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.8454545454545455)\n",
+            "    0   1\n",
+            "0  42   7\n",
+            "1  10  51\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "TA7DW8Qe3so_",
+        "colab_type": "code",
+        "outputId": "892563de-4748-4fd3-98c7-42ede230519e",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 141
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import RandomizedSearchCV\n",
+        "from scipy.stats import randint as sp_randint\n",
+        "# parameters for GridSearchCV\n",
+        "# specify parameters and distributions to sample from\n",
+        "param_dist = {\"max_depth\": range(2,5),\n",
+        "              \"min_samples_split\": sp_randint(2, 11),\n",
+        "              \"min_samples_leaf\": sp_randint(1, 11),\n",
+        "              \"bootstrap\": [True, False],\n",
+        "              \"n_estimators\": [100, 400, 700, 1000, 1500],\n",
+        "              \"criterion\" : [\"gini\", \"entropy\"],\n",
+        "              'max_features': ['sqrt', 'log2', None]\n",
+        "             }\n",
+        "# run randomized search\n",
+        "n_iter_search = 50\n",
+        "random_search = RandomizedSearchCV(rf, param_distributions = param_dist,\n",
+        "                                   n_iter = n_iter_search,\n",
+        "                                   n_jobs = -1)\n",
+        "\n",
+        "random_search.fit(X_train, y_train)\n",
+        "y_pred_test = random_search.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)\n"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "/usr/local/lib/python2.7/dist-packages/sklearn/model_selection/_split.py:2053: FutureWarning: You should specify a value for 'cv' instead of relying on the default value. The default value will change from 3 to 5 in version 0.22.\n",
+            "  warnings.warn(CV_WARNING, FutureWarning)\n"
+          ],
+          "name": "stderr"
+        },
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.8181818181818182)\n",
+            "    0   1\n",
+            "0  41   8\n",
+            "1  12  49\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "NUN1rwzfhuQR",
+        "colab_type": "code",
+        "outputId": "bff72324-a6bd-46db-9a32-806b5c772e6f",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from xgboost import XGBClassifier\n",
+        "xgboost = XGBClassifier()\n",
+        "xgboost.fit(X_train, y_train)\n",
+        "\n",
+        "y_pred_test = xgboost.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.8545454545454545)\n",
+            "    0   1\n",
+            "0  41   8\n",
+            "1   8  53\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "dSc4KtJtiG1L",
+        "colab_type": "code",
+        "outputId": "a99f7c70-2de1-45ea-e8e6-d571a6ec6111",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 87
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import GradientBoostingClassifier\n",
+        "gbm = GradientBoostingClassifier()\n",
+        "gbm.fit(X_train, y_train)\n",
+        "\n",
+        "\n",
+        "y_pred_test = gbm.predict(X_test)\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "print('Accuracy score for test data is:', accuracy_score(y_test,y_pred_test))\n",
+        "\n",
+        "from sklearn.metrics import confusion_matrix\n",
+        "confusion_matrix = pd.DataFrame(confusion_matrix(y_test, y_pred_test))\n",
+        "print(confusion_matrix)"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "('Accuracy score for test data is:', 0.8545454545454545)\n",
+            "    0   1\n",
+            "0  42   7\n",
+            "1   9  52\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "ZZSa3nfylFN3",
+        "colab_type": "code",
+        "outputId": "7a18e82f-51d0-486b-b3ec-8e5cd84eeef0",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 431
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn import preprocessing\n",
+        "from sklearn.model_selection import cross_validate\n",
+        "from sklearn.model_selection import KFold\n",
+        "from sklearn.feature_selection import RFECV\n",
+        "from sklearn.model_selection import GridSearchCV\n",
+        "from xgboost import XGBClassifier\n",
+        "from sklearn.ensemble import GradientBoostingClassifier\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "from sklearn.model_selection import StratifiedKFold\n",
+        "from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, ExtraTreesClassifier, VotingClassifier\n",
+        "from sklearn.discriminant_analysis import LinearDiscriminantAnalysis\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "from sklearn.tree import DecisionTreeClassifier\n",
+        "from sklearn.neural_network import MLPClassifier\n",
+        "from sklearn.svm import SVC\n",
+        "from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold, learning_curve\n",
+        "\n",
+        "\n",
+        "\n",
+        "kfold = StratifiedKFold(n_splits=10)\n",
+        "\n",
+        "random_state = 2\n",
+        "classifiers = []\n",
+        "classifiers.append(SVC(random_state=random_state))\n",
+        "classifiers.append(DecisionTreeClassifier(random_state=random_state))\n",
+        "classifiers.append(AdaBoostClassifier(DecisionTreeClassifier(random_state=random_state),random_state=random_state,learning_rate=0.1))\n",
+        "classifiers.append(RandomForestClassifier(random_state=random_state))\n",
+        "classifiers.append(ExtraTreesClassifier(random_state=random_state))\n",
+        "classifiers.append(GradientBoostingClassifier(random_state=random_state))\n",
+        "classifiers.append(MLPClassifier(random_state=random_state))\n",
+        "classifiers.append(KNeighborsClassifier())\n",
+        "classifiers.append(LogisticRegression(random_state = random_state))\n",
+        "classifiers.append(LinearDiscriminantAnalysis())\n",
+        "\n",
+        "cv_results = []\n",
+        "for classifier in classifiers :\n",
+        "    cv_results.append(cross_val_score(classifier, X_train, y = y_train, scoring = \"accuracy\", cv = kfold, n_jobs=-1))\n",
+        "\n",
+        "cv_means = []\n",
+        "cv_std = []\n",
+        "for cv_result in cv_results:\n",
+        "    cv_means.append(cv_result.mean())\n",
+        "    cv_std.append(cv_result.std())\n",
+        "\n",
+        "cv_res = pd.DataFrame({\"CrossValMeans\":cv_means,\"CrossValerrors\": cv_std,\"Algorithm\":[\"SVC\",\"DecisionTree\",\"AdaBoost\",\n",
+        "\"RandomForest\",\"ExtraTrees\",\"GradientBoosting\",\"MultipleLayerPerceptron\",\"KNeighboors\",\"LogisticRegression\",\"LinearDiscriminantAnalysis\"]})\n",
+        "\n",
+        "g = sns.barplot(\"CrossValMeans\",\"Algorithm\",data = cv_res, palette=\"Set3\",orient = \"h\",**{'xerr':cv_std})\n",
+        "g.set_xlabel(\"Mean Accuracy\")\n",
+        "g = g.set_title(\"Cross validation scores\")"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "/usr/local/lib/python2.7/dist-packages/seaborn/categorical.py:1428: FutureWarning: remove_na is deprecated and is a private function. Do not use.\n",
+            "  stat_data = remove_na(group_data)\n"
+          ],
+          "name": "stderr"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "image/png": "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\nzKRLly48/fTThIWFsXr16rtdozjJN998Q82aNalWrRpRUVE0adKEzp0733QfvVZHRKSIKeJzsu7o\ntTpvv/02f//734mKirJPete8nKLFMAyGDh1qn9wfHBzs7JJERETuGwWGrC+//JJVq1Yxbtw48vLy\nePrpp8nJybmbtYmTtWzZkpYtWzq7DBERkftSgZNsPD09GTRoEJs2bWLy5Mn8+uuvnDhxgsGDB/PV\nV1/dzRpFRERE7ju3NZO5SZMmvP7663z99de0bt2aOXPmOLouERERkftagRPfRe6EJr6LiBQxmvhe\n4Drdky8iIiLiABrJkkKXlnbj1wSJY3l6llLfO4n63nnU986hfv+DRrJERERE7jKFLBEREREHUMgS\nERERcQCFLBEREREHUMgSERERcYACX6sjcidW7xvt7BKKrhPOLqAIU987TxHs++ZVI5xdgtwmjWSJ\niIiIOIBCloiIiIgDKGSJiIiIOIBCloiIiIgDKGSJiIiIOIBCloiIiIgDKGSJiIiIOIBCloiIiIgD\n3BMhKyUlhUcffZR9+/blW969e3fCw8NvuE9cXBxTpkwBYOPGjQAcOnSImTNnFnicWbNmsWzZsgLX\nX9umo8TFxdGqVStCQkLo168fISEh/Pzzzw495rV27drFmTNn7trxREREiqp7ImQBVK9enXXr1tm/\nHz9+nIsXL97Wvu+++y4AtWvXZvjw4Q6przB17NiRpUuXsmzZMoYNG8bEiRPv2rE//vhjhSwREZG7\n4J55rY6/vz/ffvstNpsNFxcX1q9fT/Pmzbly5Qpt2rRh7dq1uLu7M2XKFHx8fOz7LViwgMOHDzN0\n6FBCQkKIjY1l5syZtGzZkuDgYA4cOICXlxdTp07Nd7zp06eze/dubDYb/fr1o1OnTgXWtmjRIjZt\n2kReXh6tWrViyJAhBAcHs2bNGtzd3UlISOC9997j9ddfJyIiggsXLmCz2YiMjKRWrVq0a9eOwMBA\nPDw88PLyuu68jx8/DsDu3buZNm0arq6uVK5cmQkTJrB3714WLVrE5cuXGTVqFD///DNLly7FbDbz\n/PPP07FjRz777DMWLVqEq6srvr6+hIeHExcXx9dff01GRgYnT56kf//+VKpUic2bN/PTTz8xa9Ys\n+vfvT506dWjevDl+fn5ER0djNptxd3fn9ddf5/Dhw8TGxmIymTh69CjBwcEMHTq0EH91EZEH26CO\n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\nQmCC\n",
+            "text/plain": [
+              "<Figure size 576x396 with 1 Axes>"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          }
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "mFaZgZBam1Ff",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "from sklearn import preprocessing\n",
+        "from sklearn.model_selection import cross_validate\n",
+        "from sklearn.model_selection import KFold\n",
+        "from sklearn.feature_selection import RFECV\n",
+        "from sklearn.model_selection import GridSearchCV\n",
+        "from xgboost import XGBClassifier\n",
+        "from sklearn.ensemble import GradientBoostingClassifier\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "from sklearn.model_selection import StratifiedKFold\n",
+        "from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, ExtraTreesClassifier, VotingClassifier\n",
+        "from sklearn.discriminant_analysis import LinearDiscriminantAnalysis\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "from sklearn.tree import DecisionTreeClassifier\n",
+        "from sklearn.neural_network import MLPClassifier\n",
+        "from sklearn.svm import SVC\n",
+        "from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold, learning_curve"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "7k1wXl3PmDjx",
+        "colab_type": "code",
+        "outputId": "5f1d9103-886f-4f99-8a46-dc98655a7fbc",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 255
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "# Adaboost\n",
+        "DTC = DecisionTreeClassifier()\n",
+        "\n",
+        "adaDTC = AdaBoostClassifier(DTC, random_state=7)\n",
+        "\n",
+        "ada_param_grid = {\"base_estimator__criterion\" : [\"gini\", \"entropy\"],\n",
+        "              \"base_estimator__splitter\" :   [\"best\", \"random\"],\n",
+        "              \"algorithm\" : [\"SAMME\",\"SAMME.R\"],\n",
+        "              \"n_estimators\" :[1,2],\n",
+        "              \"learning_rate\":  [0.0001, 0.001, 0.01, 0.1, 0.2, 0.3,1.5]}\n",
+        "\n",
+        "gsadaDTC = GridSearchCV(adaDTC,param_grid = ada_param_grid, cv=kfold, scoring=\"accuracy\", n_jobs= -1, verbose = 1)\n",
+        "\n",
+        "gsadaDTC.fit(X_train,y_train)\n",
+        "\n",
+        "ada_best = gsadaDTC.best_estimator_\n",
+        "gsadaDTC.best_score_"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0mTraceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-6-367c83726d98>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      9\u001b[0m               \"learning_rate\":  [0.0001, 0.001, 0.01, 0.1, 0.2, 0.3,1.5]}\n\u001b[1;32m     10\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 11\u001b[0;31m \u001b[0mgsadaDTC\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mGridSearchCV\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0madaDTC\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0mparam_grid\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mada_param_grid\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mcv\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mkfold\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mscoring\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m\"accuracy\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mn_jobs\u001b[0m\u001b[0;34m=\u001b[0m \u001b[0;34m-\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mverbose\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     12\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     13\u001b[0m \u001b[0mgsadaDTC\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX_train\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0my_train\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'kfold' is not defined"
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "ZY7gekIL48Pg",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "#Exporting Model to Object \n",
+        "\n",
+        "Model = rf1\n",
+        "import pickle\n",
+        "filename = 'finalized_model5_rfWParameter.sav'\n",
+        "pickle.dump(Model, open(filename, 'wb'))\n",
+        "\n"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "JtOW1y9hdMFH",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "testdata = pd.read_csv(\"https://raw.githubusercontent.com/equester/TataTelecomAI/master/data_CC.csv\")"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "79HcPabCeZlK",
+        "colab_type": "code",
+        "outputId": "7c6f230b-e6a1-48dc-8c36-3110af60ac30",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 215
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "testdata.head()"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Incoming Attempts</th>\n",
+              "      <th>Normal Term Seizures</th>\n",
+              "      <th>Answered Calls</th>\n",
+              "      <th>Normal Not Answer Calls</th>\n",
+              "      <th>Outgoing Seizures</th>\n",
+              "      <th>FEV Seizures</th>\n",
+              "      <th>Network Conversation Minutes</th>\n",
+              "      <th>NER</th>\n",
+              "      <th>ACD</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>41</td>\n",
+              "      <td>41</td>\n",
+              "      <td>40</td>\n",
+              "      <td>1</td>\n",
+              "      <td>41</td>\n",
+              "      <td>0</td>\n",
+              "      <td>14.533333</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>0.363333</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>239</td>\n",
+              "      <td>49</td>\n",
+              "      <td>11</td>\n",
+              "      <td>38</td>\n",
+              "      <td>71</td>\n",
+              "      <td>14</td>\n",
+              "      <td>36.666667</td>\n",
+              "      <td>85.964912</td>\n",
+              "      <td>3.333333</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>117</td>\n",
+              "      <td>96</td>\n",
+              "      <td>13</td>\n",
+              "      <td>83</td>\n",
+              "      <td>112</td>\n",
+              "      <td>4</td>\n",
+              "      <td>64.016667</td>\n",
+              "      <td>88.888889</td>\n",
+              "      <td>4.924359</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>503</td>\n",
+              "      <td>369</td>\n",
+              "      <td>92</td>\n",
+              "      <td>277</td>\n",
+              "      <td>387</td>\n",
+              "      <td>4</td>\n",
+              "      <td>275.700000</td>\n",
+              "      <td>96.344648</td>\n",
+              "      <td>2.996739</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>80</td>\n",
+              "      <td>26</td>\n",
+              "      <td>10</td>\n",
+              "      <td>16</td>\n",
+              "      <td>26</td>\n",
+              "      <td>0</td>\n",
+              "      <td>53.816667</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>5.381667</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Incoming Attempts  Normal Term Seizures  Answered Calls  \\\n",
+              "0                 41                    41              40   \n",
+              "1                239                    49              11   \n",
+              "2                117                    96              13   \n",
+              "3                503                   369              92   \n",
+              "4                 80                    26              10   \n",
+              "\n",
+              "   Normal Not Answer Calls  Outgoing Seizures  FEV Seizures  \\\n",
+              "0                        1                 41             0   \n",
+              "1                       38                 71            14   \n",
+              "2                       83                112             4   \n",
+              "3                      277                387             4   \n",
+              "4                       16                 26             0   \n",
+              "\n",
+              "   Network Conversation Minutes         NER       ACD  \n",
+              "0                     14.533333  100.000000  0.363333  \n",
+              "1                     36.666667   85.964912  3.333333  \n",
+              "2                     64.016667   88.888889  4.924359  \n",
+              "3                    275.700000   96.344648  2.996739  \n",
+              "4                     53.816667  100.000000  5.381667  "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 71
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "nFJGx33ndQuy",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "# print(logreg.predict(testdata))\n",
+        "# print(rf.predict(testdata))\n",
+        "# print(rf1.predict(testdata))\n",
+        "\n",
+        "newdata = testdata.copy()"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "MGMQN_QVgLhE",
+        "colab_type": "code",
+        "outputId": "deeb6673-515c-4441-deaf-54e69bc94143",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 254
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "newdata.head()"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Incoming Attempts</th>\n",
+              "      <th>Normal Term Seizures</th>\n",
+              "      <th>Answered Calls</th>\n",
+              "      <th>Normal Not Answer Calls</th>\n",
+              "      <th>Outgoing Seizures</th>\n",
+              "      <th>FEV Seizures</th>\n",
+              "      <th>Network Conversation Minutes</th>\n",
+              "      <th>NER</th>\n",
+              "      <th>ACD</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>41</td>\n",
+              "      <td>41</td>\n",
+              "      <td>40</td>\n",
+              "      <td>1</td>\n",
+              "      <td>41</td>\n",
+              "      <td>0</td>\n",
+              "      <td>14.533333</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>0.363333</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>239</td>\n",
+              "      <td>49</td>\n",
+              "      <td>11</td>\n",
+              "      <td>38</td>\n",
+              "      <td>71</td>\n",
+              "      <td>14</td>\n",
+              "      <td>36.666667</td>\n",
+              "      <td>85.964912</td>\n",
+              "      <td>3.333333</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>117</td>\n",
+              "      <td>96</td>\n",
+              "      <td>13</td>\n",
+              "      <td>83</td>\n",
+              "      <td>112</td>\n",
+              "      <td>4</td>\n",
+              "      <td>64.016667</td>\n",
+              "      <td>88.888889</td>\n",
+              "      <td>4.924359</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>503</td>\n",
+              "      <td>369</td>\n",
+              "      <td>92</td>\n",
+              "      <td>277</td>\n",
+              "      <td>387</td>\n",
+              "      <td>4</td>\n",
+              "      <td>275.700000</td>\n",
+              "      <td>96.344648</td>\n",
+              "      <td>2.996739</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>80</td>\n",
+              "      <td>26</td>\n",
+              "      <td>10</td>\n",
+              "      <td>16</td>\n",
+              "      <td>26</td>\n",
+              "      <td>0</td>\n",
+              "      <td>53.816667</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>5.381667</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Incoming Attempts  Normal Term Seizures  Answered Calls  \\\n",
+              "0                 41                    41              40   \n",
+              "1                239                    49              11   \n",
+              "2                117                    96              13   \n",
+              "3                503                   369              92   \n",
+              "4                 80                    26              10   \n",
+              "\n",
+              "   Normal Not Answer Calls  Outgoing Seizures  FEV Seizures  \\\n",
+              "0                        1                 41             0   \n",
+              "1                       38                 71            14   \n",
+              "2                       83                112             4   \n",
+              "3                      277                387             4   \n",
+              "4                       16                 26             0   \n",
+              "\n",
+              "   Network Conversation Minutes         NER       ACD  \n",
+              "0                     14.533333  100.000000  0.363333  \n",
+              "1                     36.666667   85.964912  3.333333  \n",
+              "2                     64.016667   88.888889  4.924359  \n",
+              "3                    275.700000   96.344648  2.996739  \n",
+              "4                     53.816667  100.000000  5.381667  "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 65
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "0Fp9opS0gRx1",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "newdata['M1_Predicted'] = logreg.predict(testdata)\n",
+        "newdata['M2_Predicted'] = dtree.predict(testdata)\n",
+        "newdata['M3_Predicted'] = grid_search.predict(testdata)\n",
+        "newdata['M4_Predicted'] = rf.predict(testdata)\n",
+        "newdata['M5_Predicted'] = rf1.predict(testdata)\n",
+        "newdata['M6_Predicted'] = random_search.predict(testdata)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "iMFl7NRxg-IR",
+        "colab_type": "code",
+        "outputId": "8115549d-4870-4813-8a30-a2ff81d1789e",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 274
+        }
+      },
+      "cell_type": "code",
+      "source": [
+        "newdata.head()"
+      ],
+      "execution_count": 0,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Incoming Attempts</th>\n",
+              "      <th>Normal Term Seizures</th>\n",
+              "      <th>Answered Calls</th>\n",
+              "      <th>Normal Not Answer Calls</th>\n",
+              "      <th>Outgoing Seizures</th>\n",
+              "      <th>FEV Seizures</th>\n",
+              "      <th>Network Conversation Minutes</th>\n",
+              "      <th>NER</th>\n",
+              "      <th>ACD</th>\n",
+              "      <th>M1_Predicted</th>\n",
+              "      <th>M2_Predicted</th>\n",
+              "      <th>M3_Predicted</th>\n",
+              "      <th>M4_Predicted</th>\n",
+              "      <th>M5_Predicted</th>\n",
+              "      <th>M6_Predicted</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>41</td>\n",
+              "      <td>41</td>\n",
+              "      <td>40</td>\n",
+              "      <td>1</td>\n",
+              "      <td>41</td>\n",
+              "      <td>0</td>\n",
+              "      <td>14.533333</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>0.363333</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Corporate</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>239</td>\n",
+              "      <td>49</td>\n",
+              "      <td>11</td>\n",
+              "      <td>38</td>\n",
+              "      <td>71</td>\n",
+              "      <td>14</td>\n",
+              "      <td>36.666667</td>\n",
+              "      <td>85.964912</td>\n",
+              "      <td>3.333333</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>117</td>\n",
+              "      <td>96</td>\n",
+              "      <td>13</td>\n",
+              "      <td>83</td>\n",
+              "      <td>112</td>\n",
+              "      <td>4</td>\n",
+              "      <td>64.016667</td>\n",
+              "      <td>88.888889</td>\n",
+              "      <td>4.924359</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>503</td>\n",
+              "      <td>369</td>\n",
+              "      <td>92</td>\n",
+              "      <td>277</td>\n",
+              "      <td>387</td>\n",
+              "      <td>4</td>\n",
+              "      <td>275.700000</td>\n",
+              "      <td>96.344648</td>\n",
+              "      <td>2.996739</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Corporate</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>80</td>\n",
+              "      <td>26</td>\n",
+              "      <td>10</td>\n",
+              "      <td>16</td>\n",
+              "      <td>26</td>\n",
+              "      <td>0</td>\n",
+              "      <td>53.816667</td>\n",
+              "      <td>100.000000</td>\n",
+              "      <td>5.381667</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "      <td>Call Center</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Incoming Attempts  Normal Term Seizures  Answered Calls  \\\n",
+              "0                 41                    41              40   \n",
+              "1                239                    49              11   \n",
+              "2                117                    96              13   \n",
+              "3                503                   369              92   \n",
+              "4                 80                    26              10   \n",
+              "\n",
+              "   Normal Not Answer Calls  Outgoing Seizures  FEV Seizures  \\\n",
+              "0                        1                 41             0   \n",
+              "1                       38                 71            14   \n",
+              "2                       83                112             4   \n",
+              "3                      277                387             4   \n",
+              "4                       16                 26             0   \n",
+              "\n",
+              "   Network Conversation Minutes         NER       ACD M1_Predicted  \\\n",
+              "0                     14.533333  100.000000  0.363333  Call Center   \n",
+              "1                     36.666667   85.964912  3.333333  Call Center   \n",
+              "2                     64.016667   88.888889  4.924359  Call Center   \n",
+              "3                    275.700000   96.344648  2.996739  Call Center   \n",
+              "4                     53.816667  100.000000  5.381667  Call Center   \n",
+              "\n",
+              "  M2_Predicted M3_Predicted M4_Predicted M5_Predicted M6_Predicted  \n",
+              "0    Corporate  Call Center  Call Center  Call Center  Call Center  \n",
+              "1  Call Center  Call Center  Call Center  Call Center  Call Center  \n",
+              "2  Call Center  Call Center  Call Center  Call Center  Call Center  \n",
+              "3  Call Center    Corporate  Call Center  Call Center  Call Center  \n",
+              "4  Call Center  Call Center  Call Center  Call Center  Call Center  "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 74
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "EBvsE5WQhDNd",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "newdata.to_csv(\"ModelStacking6MOdels.csv\") "
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "s3HLXUc4hO3F",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        ""
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
